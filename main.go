@@ -16,9 +16,13 @@ func newApp() *iris.Application {
 
 	app.RegisterView(iris.HTML("./web/views", ".html"))
 
-	repo := repositories.NewTypeGroupRepository(datasource.TypeGroups)
-	typeGroupService := services.NewTypeGroupService(repo)
+	repoTypeGroup := repositories.NewTypeGroupRepository(datasource.TypeGroups)
+	typeGroupService := services.NewTypeGroupService(repoTypeGroup)
 	hero.Register(typeGroupService)
+
+	repoProcessGroup := repositories.NewProcessGroupRepository(datasource.ProcessGroups)
+	processGroupService := services.NewProcessGroupService(repoProcessGroup)
+	hero.Register(processGroupService)
 
 	crs := cors.New(cors.Options{
 		AllowedOrigins:[]string{"*"},
@@ -28,6 +32,7 @@ func newApp() *iris.Application {
 	flow := app.Party("/flow", crs).AllowMethods(iris.MethodOptions)
 	{
 		flow.PartyFunc("/dataflow", registerDataFlowRoutes)
+		flow.PartyFunc("/process-groups", registerProcessGroupRoutes)
 	}
 
 	return app
@@ -44,6 +49,11 @@ func main() {
 		)
 }
 
-func registerDataFlowRoutes(router iris.Party)  {
+func registerDataFlowRoutes(router iris.Party) {
 	router.Get("/processor-types", hero.Handler(routes.TypeGroups))
+	router.Get("/process-groups/{id:string}", hero.Handler(routes.ProcessGroups))
+}
+
+func registerProcessGroupRoutes(router iris.Party) {
+	router.Post("/{gid:string}/processors", hero.Handler(routes.CreateProcessor))
 }
