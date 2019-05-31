@@ -17,6 +17,9 @@ type ProcessGroupService interface {
 	DeleteConnectionsByIDs(id string, connIDs []string) (datamodels.ProcessGroup, error)
 
 	CloneProcessorsAndConnections(id string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
+
+	CreateProcessGroup(parentID string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
+	DeleteContent(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error)
 }
 
 func NewProcessGroupService(repo repositories.ProcessGroupRepository, typeRepo repositories.TypeGroupRepository) ProcessGroupService {
@@ -29,6 +32,14 @@ func NewProcessGroupService(repo repositories.ProcessGroupRepository, typeRepo r
 type processGroupService struct {
 	repo     repositories.ProcessGroupRepository
 	typeRepo repositories.TypeGroupRepository
+}
+
+func (s *processGroupService) DeleteContent(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error) {
+	return s.repo.DeleteContent(parentID, processors, connections, processGroups)
+}
+
+func (s *processGroupService) CreateProcessGroup(parentID string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error) {
+	return s.repo.InsertProcessGroup(parentID, processors, connections)
 }
 
 func (s *processGroupService) CloneProcessorsAndConnections(id string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error) {

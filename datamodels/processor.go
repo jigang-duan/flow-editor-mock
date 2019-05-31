@@ -5,8 +5,8 @@ type Style struct {
 }
 
 type Status struct {
-	Show  bool `json:"show"`
-	Label bool `json:"label"`
+	Show  bool   `json:"show"`
+	Label string `json:"label"`
 }
 
 type Rect struct {

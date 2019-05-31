@@ -62,4 +62,6 @@ func registerProcessGroupRoutes(party iris.Party) {
 	party.Post("/{gid:string}/connections", hero.Handler(routes.CreateConnection))
 	party.Delete("/{gid:string}/connections", hero.Handler(routes.DeleteConnections))
 	party.Put("/{gid:string}/clone", hero.Handler(routes.CloneProcessorsAndConnections))
+	party.Post("/{gid:string}/process-groups", hero.Handler(routes.CreateProcessGroup))
+	party.Delete("/{gid:string}/content", hero.Handler(routes.DeleteContent))
 }
