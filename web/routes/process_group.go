@@ -65,3 +65,12 @@ func DeleteContent(ctx iris.Context, service services.ProcessGroupService, gid s
 	}
 	return service.DeleteContent(gid, delContent.Processors, delContent.Connections, delContent.ProcessGroups)
 }
+
+func UpdateProcessGroupContent(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
+	var processGroup datamodels.ProcessGroup
+	if err := ctx.ReadJSON(&processGroup); err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		return datamodels.ProcessGroup{}, err
+	}
+	return service.Update(gid, processGroup.Processors, processGroup.Connections, processGroup.ProcessGroups)
+}

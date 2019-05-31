@@ -34,7 +34,7 @@ type Processor struct {
 
 type Connection struct {
 	ID         string `json:"id"`
-	SourceID   string `json:"sourceId"`
+	SourceID   string `json:"source"`
 	SourcePort int    `json:"sourcePort"`
-	TargetID   string `json:"targetId"`
+	TargetID   string `json:"target"`
 }

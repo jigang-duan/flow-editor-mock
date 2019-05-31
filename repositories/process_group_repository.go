@@ -18,7 +18,10 @@ type ProcessGroupRepository interface {
 	CloneProcessorsAndConnections(gid string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
 
 	InsertProcessGroup(parentID string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
+
 	DeleteContent(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error)
+	
+	Update(gid string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error)
 }
 
 func NewProcessGroupRepository(source map[string]datamodels.ProcessGroup) ProcessGroupRepository {
@@ -30,6 +33,29 @@ func NewProcessGroupRepository(source map[string]datamodels.ProcessGroup) Proces
 type processGroupRepository struct {
 	source map[string]datamodels.ProcessGroup
 	mu     sync.RWMutex
+}
+
+func (r *processGroupRepository) Update(gid string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error) {
+	group, found := r.Select(gid)
+	if !found {
+		return group, errors.New("不存在的组")
+	}
+
+	if len(processors) > 0 {
+		group.Processors = updateProcessors(group, processors)
+	}
+	if len(connections) > 0 {
+		group.Connections = updateConnections(group, connections)
+	}
+	if len(processGroups) > 0 {
+		group.ProcessGroups = updateProcessGroups(group, processGroups)
+	}
+
+	r.mu.Lock()
+	r.source[gid] = group
+	r.mu.Unlock()
+
+	return group, nil
 }
 
 func (r *processGroupRepository) DeleteContent(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error) {
@@ -187,22 +213,7 @@ func (r *processGroupRepository) UpdateProcessors(gid string, processors []datam
 		return group, errors.New("不存在的组")
 	}
 
-	var ps []datamodels.Processor
-	var has = false
-	for _, gp := range group.Processors {
-		has = false
-		for _, p := range processors {
-			if p.ID == gp.ID {
-				ps = append(ps, p)
-				has = true
-				break
-			}
-		}
-		if !has {
-			ps = append(ps, gp)
-		}
-	}
-	group.Processors = ps
+	group.Processors = updateProcessors(group, processors)
 
 	r.mu.Lock()
 	r.source[gid] = group
@@ -300,5 +311,101 @@ func deleteProcessGroups(group datamodels.ProcessGroup, ids []string) []datamode
 		}
 	}
 
+	return results
+}
+
+func updateProcessors(group datamodels.ProcessGroup, processors []datamodels.Processor) []datamodels.Processor {
+	var (
+		results []datamodels.Processor
+		majorPart []datamodels.Processor
+		part []datamodels.Processor
+	)
+
+	if len(processors) > len(group.Processors) {
+		majorPart = processors
+		part = group.Processors
+	} else {
+		majorPart = group.Processors
+		part = processors
+	}
+
+	var has = false
+	for _, processor := range majorPart {
+		has = false
+		for _, item := range part {
+			if item.ID == processor.ID {
+				results = append(results, item)
+				has = true
+				break
+			}
+		}
+		if !has {
+			results = append(results, processor)
+		}
+	}
+	return results
+}
+
+func updateConnections(group datamodels.ProcessGroup, connections []datamodels.Connection) []datamodels.Connection {
+	var (
+		results []datamodels.Connection
+		majorPart []datamodels.Connection
+		part []datamodels.Connection
+	)
+
+	if len(connections) > len(group.Connections) {
+		majorPart = connections
+		part = group.Connections
+	} else {
+		majorPart = group.Connections
+		part = connections
+	}
+
+	var has = false
+	for _, connection := range majorPart {
+		has = false
+		for _, item := range part {
+			if item.ID == connection.ID {
+				results = append(results, item)
+				has = true
+				break
+			}
+		}
+		if !has {
+			results = append(results, connection)
+		}
+	}
+	return results
+}
+
+func updateProcessGroups(group datamodels.ProcessGroup, processGroups []datamodels.ProcessGroup) []datamodels.ProcessGroup {
+	var (
+		results []datamodels.ProcessGroup
+		majorPart []datamodels.ProcessGroup
+		part []datamodels.ProcessGroup
+	)
+
+	if len(processGroups) > len(group.ProcessGroups) {
+		majorPart = processGroups
+		part = group.ProcessGroups
+	} else {
+		majorPart = group.ProcessGroups
+		part = processGroups
+	}
+
+	var has = false
+	for _, processGroup := range majorPart {
+		has = false
+		for _, item := range part {
+			if item.ID == processGroup.ID {
+				results = append(results, item)
+				has = true
+				break
+			}
+		}
+		if !has {
+			results = append(results, processGroup)
+		}
+	}
 	return results
 }
