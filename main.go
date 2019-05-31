@@ -50,14 +50,16 @@ func main() {
 	)
 }
 
-func registerDataFlowRoutes(router iris.Party) {
-	router.Get("/processor-types", hero.Handler(routes.TypeGroups))
-	router.Get("/process-groups/{id:string}", hero.Handler(routes.ProcessGroups))
+func registerDataFlowRoutes(party iris.Party) {
+	party.Get("/processor-types", hero.Handler(routes.TypeGroups))
+	party.Get("/process-groups/{id:string}", hero.Handler(routes.ProcessGroups))
 }
 
-func registerProcessGroupRoutes(router iris.Party) {
-	router.Post("/{gid:string}/processors", hero.Handler(routes.CreateProcessor))
-	router.Put("/{gid:string}/processors", hero.Handler(routes.UpdateProcessors))
-	router.Post("/{gid:string}/connections", hero.Handler(routes.CreateConnection))
-	router.Delete("/{gid:string}/connections", hero.Handler(routes.DeleteConnections))
+func registerProcessGroupRoutes(party iris.Party) {
+	party.Post("/{gid:string}/processors", hero.Handler(routes.CreateProcessor))
+	party.Put("/{gid:string}/processors", hero.Handler(routes.UpdateProcessors))
+	party.Delete("/{gid:string}/processors", hero.Handler(routes.DeleteProcessors))
+	party.Post("/{gid:string}/connections", hero.Handler(routes.CreateConnection))
+	party.Delete("/{gid:string}/connections", hero.Handler(routes.DeleteConnections))
+	party.Put("/{gid:string}/clone", hero.Handler(routes.CloneProcessorsAndConnections))
 }

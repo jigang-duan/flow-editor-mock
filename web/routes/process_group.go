@@ -48,3 +48,22 @@ func DeleteConnections(ctx iris.Context, service services.ProcessGroupService, g
 
 	return service.DeleteConnectionsByIDs(gid, connections)
 }
+
+func DeleteProcessors(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
+	var processors []string
+	if err := ctx.ReadJSON(&processors); err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		return datamodels.ProcessGroup{}, err
+	}
+
+	return service.DeleteProcessorsByIDs(gid, processors)
+}
+
+func CloneProcessorsAndConnections(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
+	var processGroup datamodels.ProcessGroup
+	if err := ctx.ReadJSON(&processGroup); err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		return datamodels.ProcessGroup{}, err
+	}
+	return service.CloneProcessorsAndConnections(gid, processGroup.Processors, processGroup.Connections)
+}

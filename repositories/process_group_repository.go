@@ -12,9 +12,12 @@ type ProcessGroupRepository interface {
 
 	InsertProcessor(gid string, processor datamodels.Processor) (updatedProcessGroup datamodels.ProcessGroup, err error)
 	UpdateProcessors(gid string, processors []datamodels.Processor) (updatedProcessGroup datamodels.ProcessGroup, err error)
+	DeleteProcessors(gid string, processorsIDs []string) (updatedProcessGroup datamodels.ProcessGroup, err error)
 
 	InsertConnection(gid string, connection datamodels.Connection) (updatedProcessGroup datamodels.ProcessGroup, err error)
 	DeleteConnections(gid string, connIDs []string) (updatedProcessGroup datamodels.ProcessGroup, err error)
+
+	CloneProcessorsAndConnections(gid string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
 }
 
 func NewProcessGroupRepository(source map[string]datamodels.ProcessGroup) ProcessGroupRepository {
@@ -26,6 +29,79 @@ func NewProcessGroupRepository(source map[string]datamodels.ProcessGroup) Proces
 type processGroupRepository struct {
 	source map[string]datamodels.ProcessGroup
 	mu     sync.RWMutex
+}
+
+func (r *processGroupRepository) CloneProcessorsAndConnections(gid string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error) {
+	group, found := r.Select(gid)
+	if !found {
+		return group, errors.New("不存在的组")
+	}
+
+	for _, p := range processors {
+		id, err := uuid.NewV4()
+		if err != nil {
+			return group, err
+		}
+		p.OldID = p.ID
+		p.ID = id.String()
+		p.Rect.Y = p.Rect.Y + 10
+		group.Processors = append(group.Processors, p)
+	}
+
+	for _, c := range connections {
+		id, err := uuid.NewV4()
+		if err != nil {
+			return group, err
+		}
+		connection := datamodels.Connection{
+			ID:         id.String(),
+			SourcePort: c.SourcePort,
+		}
+		for _, p := range group.Processors {
+			if p.OldID == c.SourceID {
+				connection.SourceID = p.ID
+			} else if p.OldID == c.TargetID {
+				connection.TargetID = p.ID
+			}
+		}
+		group.Connections = append(group.Connections, connection)
+	}
+
+	r.mu.Lock()
+	r.source[gid] = group
+	r.mu.Unlock()
+
+	return group, nil
+}
+
+func (r *processGroupRepository) DeleteProcessors(gid string, processorsIDs []string) (updatedProcessGroup datamodels.ProcessGroup, err error) {
+	group, found := r.Select(gid)
+	if !found {
+		return group, errors.New("不存在的组")
+	}
+
+	var ps []datamodels.Processor
+	var has = false
+	for _, gp := range group.Processors {
+		has = false
+		for _, id := range processorsIDs {
+			if gp.ID == id {
+				has = true
+				break
+			}
+		}
+		if !has {
+			ps = append(ps, gp)
+		}
+	}
+
+	group.Processors = ps
+
+	r.mu.Lock()
+	r.source[gid] = group
+	r.mu.Unlock()
+
+	return group, nil
 }
 
 func (r *processGroupRepository) DeleteConnections(gid string, connIDs []string) (updatedProcessGroup datamodels.ProcessGroup, err error) {
@@ -142,5 +218,3 @@ func (r *processGroupRepository) Select(id string) (processGroup datamodels.Proc
 
 	return
 }
-
-

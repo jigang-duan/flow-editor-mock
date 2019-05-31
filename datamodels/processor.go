@@ -19,6 +19,7 @@ type Rect struct {
 type Processor struct {
 	ID          string `json:"id"`
 	TypeID      string `json:"typeId"`
+	OldID       string `json:"-"`
 	Label       string `json:"label"`
 	HasInput    bool   `json:"hasInput"`
 	HasOutput   bool   `json:"hasOutput"`
@@ -32,8 +33,8 @@ type Processor struct {
 }
 
 type Connection struct {
-	ID string `json:"id"`
-	SourceID string `json:"sourceId"`
-	SourcePort int `json:"sourcePort"`
-	TargetID string `json:"targetId"`
+	ID         string `json:"id"`
+	SourceID   string `json:"sourceId"`
+	SourcePort int    `json:"sourcePort"`
+	TargetID   string `json:"targetId"`
 }
