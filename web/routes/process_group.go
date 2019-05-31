@@ -19,3 +19,32 @@ func CreateProcessor(ctx iris.Context, service services.ProcessGroupService, gid
 
 	return service.CreateProcessorByID(gid, processor)
 }
+
+func UpdateProcessors(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
+	var processors []datamodels.Processor
+	if err := ctx.ReadJSON(&processors); err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		return datamodels.ProcessGroup{}, err
+	}
+	return service.UpdateProcessorsByID(gid, processors)
+}
+
+func CreateConnection(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
+	var connection datamodels.Connection
+	if err := ctx.ReadJSON(&connection); err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		return datamodels.ProcessGroup{}, err
+	}
+
+	return service.CreateConnectionByID(gid, connection)
+}
+
+func DeleteConnections(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
+	var connections []string
+	if err := ctx.ReadJSON(&connections); err != nil {
+		ctx.StatusCode(iris.StatusBadRequest)
+		return datamodels.ProcessGroup{}, err
+	}
+
+	return service.DeleteConnectionsByIDs(gid, connections)
+}

@@ -30,3 +30,10 @@ type Processor struct {
 	Icon        string `json:"icon"`
 	Style       Style  `json:"style"`
 }
+
+type Connection struct {
+	ID string `json:"id"`
+	SourceID string `json:"sourceId"`
+	SourcePort int `json:"sourcePort"`
+	TargetID string `json:"targetId"`
+}

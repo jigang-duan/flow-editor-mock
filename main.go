@@ -21,12 +21,13 @@ func newApp() *iris.Application {
 	hero.Register(typeGroupService)
 
 	repoProcessGroup := repositories.NewProcessGroupRepository(datasource.ProcessGroups)
-	processGroupService := services.NewProcessGroupService(repoProcessGroup)
+	processGroupService := services.NewProcessGroupService(repoProcessGroup, repoTypeGroup)
 	hero.Register(processGroupService)
 
 	crs := cors.New(cors.Options{
-		AllowedOrigins:[]string{"*"},
-		AllowCredentials:true,
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+		AllowedMethods:   []string{"GET", "POST", "HEAD", "PUT", "DELETE"},
 	})
 
 	flow := app.Party("/flow", crs).AllowMethods(iris.MethodOptions)
@@ -43,10 +44,10 @@ func main() {
 	app := newApp()
 
 	_ = app.Run(
-			iris.Addr(":8080"),
-			iris.WithoutServerError(iris.ErrServerClosed),
-			iris.WithOptimizations,
-		)
+		iris.Addr(":8080"),
+		iris.WithoutServerError(iris.ErrServerClosed),
+		iris.WithOptimizations,
+	)
 }
 
 func registerDataFlowRoutes(router iris.Party) {
@@ -56,4 +57,7 @@ func registerDataFlowRoutes(router iris.Party) {
 
 func registerProcessGroupRoutes(router iris.Party) {
 	router.Post("/{gid:string}/processors", hero.Handler(routes.CreateProcessor))
+	router.Put("/{gid:string}/processors", hero.Handler(routes.UpdateProcessors))
+	router.Post("/{gid:string}/connections", hero.Handler(routes.CreateConnection))
+	router.Delete("/{gid:string}/connections", hero.Handler(routes.DeleteConnections))
 }
