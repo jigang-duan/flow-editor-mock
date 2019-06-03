@@ -17,6 +17,8 @@ type ProcessGroupService interface {
 	CloneSnippet(id string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
 
 	CreateProcessGroup(parentID string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
+	UngroupProcessGroup(gid string, parentID string) (datamodels.ProcessGroup, error)
+
 	DeleteSnippet(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error)
 
 	UpdateSnippet(id string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error)
@@ -32,6 +34,10 @@ func NewProcessGroupService(repo repositories.ProcessGroupRepository, typeRepo r
 type processGroupService struct {
 	repo     repositories.ProcessGroupRepository
 	typeRepo repositories.TypeGroupRepository
+}
+
+func (s *processGroupService) UngroupProcessGroup(gid string, parentID string) (datamodels.ProcessGroup, error) {
+	return s.repo.UngroupProcessGroup(gid, parentID)
 }
 
 func (s *processGroupService) UpdateSnippet(id string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error) {

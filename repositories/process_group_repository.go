@@ -18,6 +18,7 @@ type ProcessGroupRepository interface {
 	CloneSnippet(gid string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
 
 	InsertProcessGroup(parentID string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
+	UngroupProcessGroup(gid string, parentID string) (datamodels.ProcessGroup, error)
 
 	DeleteSnippet(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error)
 
@@ -33,6 +34,34 @@ func NewProcessGroupRepository(source map[string]datamodels.ProcessGroup) Proces
 type processGroupRepository struct {
 	source map[string]datamodels.ProcessGroup
 	mu     sync.RWMutex
+}
+
+func (r *processGroupRepository) UngroupProcessGroup(gid string, parentID string) (datamodels.ProcessGroup, error) {
+	group, found := r.Select(parentID)
+	if !found {
+		return group, errors.New("不存在的组")
+	}
+
+	var current datamodels.ProcessGroup
+	for i, g := range group.ProcessGroups {
+		if gid == g.ID {
+			current = g
+			group.ProcessGroups = append(group.ProcessGroups[:i], group.ProcessGroups[i+1:]...)
+			break
+		}
+	}
+	if current.ID == "" {
+		return group, errors.New("不存在的组")
+	}
+
+	group.Processors = append(group.Processors, current.Processors...)
+	group.Connections = append(group.Connections, current.Connections...)
+
+	r.mu.Lock()
+	r.source[parentID] = group
+	r.mu.Unlock()
+
+	return group, nil
 }
 
 func (r *processGroupRepository) UpdateSnippet(gid string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error) {
@@ -139,6 +168,7 @@ func (r *processGroupRepository) InsertProcessGroup(parentID string, processors 
 
 	r.mu.Lock()
 	r.source[parentID] = group
+	r.source[processGroup.ID] = processGroup
 	r.mu.Unlock()
 
 	return group, nil

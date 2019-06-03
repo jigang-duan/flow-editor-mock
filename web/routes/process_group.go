@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"flow-editor-mock/datamodels"
 	"flow-editor-mock/services"
 	"github.com/kataras/iris"
@@ -73,4 +74,13 @@ func UpdateSnippet(ctx iris.Context, service services.ProcessGroupService, gid s
 		return datamodels.ProcessGroup{}, err
 	}
 	return service.UpdateSnippet(gid, processGroup.Processors, processGroup.Connections, processGroup.ProcessGroups)
+}
+
+func UngroupProcessGroup(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
+	parentID := ctx.URLParam("parentID")
+	if parentID == "" {
+		ctx.StatusCode(iris.StatusBadRequest)
+		return datamodels.ProcessGroup{}, errors.New("需要parentID参数")
+	}
+	return service.UngroupProcessGroup(gid, parentID)
 }

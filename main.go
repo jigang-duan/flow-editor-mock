@@ -52,7 +52,7 @@ func main() {
 
 func registerDataFlowRoutes(party iris.Party) {
 	party.Get("/processor-types", hero.Handler(routes.TypeGroups))
-	party.Get("/process-groups/{id:string}", hero.Handler(routes.ProcessGroups))
+	party.Get("/process-groups/{id}", hero.Handler(routes.ProcessGroups))
 }
 
 func registerProcessGroupRoutes(party iris.Party) {
@@ -63,4 +63,5 @@ func registerProcessGroupRoutes(party iris.Party) {
 	party.Post("/{gid:string}/snippet", hero.Handler(routes.CloneSnippet))
 	party.Delete("/{gid:string}/snippet", hero.Handler(routes.DeleteSnippet))
 	party.Put("/{gid:string}/snippet", hero.Handler(routes.UpdateSnippet))
+	party.Put("/{gid:string}/ungroup", hero.Handler(routes.UngroupProcessGroup))
 }
