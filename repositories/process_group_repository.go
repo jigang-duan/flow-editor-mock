@@ -15,13 +15,13 @@ type ProcessGroupRepository interface {
 
 	InsertConnection(gid string, connection datamodels.Connection) (updatedProcessGroup datamodels.ProcessGroup, err error)
 
-	CloneProcessorsAndConnections(gid string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
+	CloneSnippet(gid string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
 
 	InsertProcessGroup(parentID string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
 
-	DeleteContent(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error)
-	
-	Update(gid string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error)
+	DeleteSnippet(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error)
+
+	UpdateSnippet(gid string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error)
 }
 
 func NewProcessGroupRepository(source map[string]datamodels.ProcessGroup) ProcessGroupRepository {
@@ -35,7 +35,7 @@ type processGroupRepository struct {
 	mu     sync.RWMutex
 }
 
-func (r *processGroupRepository) Update(gid string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error) {
+func (r *processGroupRepository) UpdateSnippet(gid string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error) {
 	group, found := r.Select(gid)
 	if !found {
 		return group, errors.New("不存在的组")
@@ -58,7 +58,7 @@ func (r *processGroupRepository) Update(gid string, processors []datamodels.Proc
 	return group, nil
 }
 
-func (r *processGroupRepository) DeleteContent(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error) {
+func (r *processGroupRepository) DeleteSnippet(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error) {
 	group, found := r.Select(parentID)
 	if !found {
 		return group, errors.New("不存在的组")
@@ -144,7 +144,7 @@ func (r *processGroupRepository) InsertProcessGroup(parentID string, processors 
 	return group, nil
 }
 
-func (r *processGroupRepository) CloneProcessorsAndConnections(gid string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error) {
+func (r *processGroupRepository) CloneSnippet(gid string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error) {
 	group, found := r.Select(gid)
 	if !found {
 		return group, errors.New("不存在的组")

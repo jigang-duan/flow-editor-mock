@@ -14,12 +14,12 @@ type ProcessGroupService interface {
 
 	CreateConnectionByID(id string, connection datamodels.Connection) (datamodels.ProcessGroup, error)
 
-	CloneProcessorsAndConnections(id string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
+	CloneSnippet(id string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
 
 	CreateProcessGroup(parentID string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error)
-	DeleteContent(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error)
+	DeleteSnippet(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error)
 
-	Update(id string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error)
+	UpdateSnippet(id string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error)
 }
 
 func NewProcessGroupService(repo repositories.ProcessGroupRepository, typeRepo repositories.TypeGroupRepository) ProcessGroupService {
@@ -34,20 +34,20 @@ type processGroupService struct {
 	typeRepo repositories.TypeGroupRepository
 }
 
-func (s *processGroupService) Update(id string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error) {
-	return s.repo.Update(id, processors, connections, processGroups)
+func (s *processGroupService) UpdateSnippet(id string, processors []datamodels.Processor, connections []datamodels.Connection, processGroups []datamodels.ProcessGroup) (datamodels.ProcessGroup, error) {
+	return s.repo.UpdateSnippet(id, processors, connections, processGroups)
 }
 
-func (s *processGroupService) DeleteContent(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error) {
-	return s.repo.DeleteContent(parentID, processors, connections, processGroups)
+func (s *processGroupService) DeleteSnippet(parentID string, processors []string, connections []string, processGroups []string) (datamodels.ProcessGroup, error) {
+	return s.repo.DeleteSnippet(parentID, processors, connections, processGroups)
 }
 
 func (s *processGroupService) CreateProcessGroup(parentID string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error) {
 	return s.repo.InsertProcessGroup(parentID, processors, connections)
 }
 
-func (s *processGroupService) CloneProcessorsAndConnections(id string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error) {
-	return s.repo.CloneProcessorsAndConnections(id, processors, connections)
+func (s *processGroupService) CloneSnippet(id string, processors []datamodels.Processor, connections []datamodels.Connection) (datamodels.ProcessGroup, error) {
+	return s.repo.CloneSnippet(id, processors, connections)
 }
 
 func (s *processGroupService) CreateConnectionByID(id string, connection datamodels.Connection) (datamodels.ProcessGroup, error) {

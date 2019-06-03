@@ -39,13 +39,13 @@ func CreateConnection(ctx iris.Context, service services.ProcessGroupService, gi
 	return service.CreateConnectionByID(gid, connection)
 }
 
-func CloneProcessorsAndConnections(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
+func CloneSnippet(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
 	var processGroup datamodels.ProcessGroup
 	if err := ctx.ReadJSON(&processGroup); err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
 		return datamodels.ProcessGroup{}, err
 	}
-	return service.CloneProcessorsAndConnections(gid, processGroup.Processors, processGroup.Connections)
+	return service.CloneSnippet(gid, processGroup.Processors, processGroup.Connections)
 }
 
 func CreateProcessGroup(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
@@ -57,20 +57,20 @@ func CreateProcessGroup(ctx iris.Context, service services.ProcessGroupService, 
 	return service.CreateProcessGroup(gid, processGroup.Processors, processGroup.Connections)
 }
 
-func DeleteContent(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
+func DeleteSnippet(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
 	var delContent datamodels.DelContent
 	if err := ctx.ReadJSON(&delContent); err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
 		return datamodels.ProcessGroup{}, err
 	}
-	return service.DeleteContent(gid, delContent.Processors, delContent.Connections, delContent.ProcessGroups)
+	return service.DeleteSnippet(gid, delContent.Processors, delContent.Connections, delContent.ProcessGroups)
 }
 
-func UpdateProcessGroupContent(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
+func UpdateSnippet(ctx iris.Context, service services.ProcessGroupService, gid string) (datamodels.ProcessGroup, error) {
 	var processGroup datamodels.ProcessGroup
 	if err := ctx.ReadJSON(&processGroup); err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
 		return datamodels.ProcessGroup{}, err
 	}
-	return service.Update(gid, processGroup.Processors, processGroup.Connections, processGroup.ProcessGroups)
+	return service.UpdateSnippet(gid, processGroup.Processors, processGroup.Connections, processGroup.ProcessGroups)
 }
