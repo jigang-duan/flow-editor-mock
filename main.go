@@ -3,12 +3,14 @@ package main
 import (
 	"flow-editor-mock/datasource"
 	"flow-editor-mock/repositories"
+	"flow-editor-mock/repositories/nifi"
 	"flow-editor-mock/services"
 	"flow-editor-mock/web/routes"
 	"github.com/iris-contrib/middleware/cors"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/hero"
 	"github.com/kataras/iris/middleware/logger"
+	"gopkg.in/resty.v1"
 )
 
 func newApp() *iris.Application {
@@ -41,7 +43,13 @@ func newApp() *iris.Application {
 
 	app.RegisterView(iris.HTML("./web/views", ".html"))
 
-	repoTypeGroup := repositories.NewTypeGroupRepository(datasource.TypeGroups)
+	client := resty.New()
+	{
+		client.SetDebug(true)
+	}
+
+	//repoTypeGroup := repositories.NewTypeGroupRepository(datasource.TypeGroups)
+	repoTypeGroup := nifi.NewTypeGroupRepository(client)
 	typeGroupService := services.NewTypeGroupService(repoTypeGroup)
 	hero.Register(typeGroupService)
 
