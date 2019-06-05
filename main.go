@@ -8,11 +8,36 @@ import (
 	"github.com/iris-contrib/middleware/cors"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/hero"
+	"github.com/kataras/iris/middleware/logger"
 )
 
 func newApp() *iris.Application {
 	app := iris.New()
 	app.Logger().SetLevel("debug")
+
+	customLogger := logger.New(logger.Config{
+		// Status displays status code
+		Status: true,
+		// IP displays request's remote address
+		IP: true,
+		// Method displays the http method
+		Method: true,
+		// Path displays the request path
+		Path: true,
+		// Query appends the url query to the Path.
+		Query: true,
+
+		//Columns: true,
+
+		// if !empty then its contents derives from `ctx.Values().Get("logger_message")
+		// will be added to the logs.
+		MessageContextKeys: []string{"logger_message"},
+
+		// if !empty then its contents derives from `ctx.GetHeader("User-Agent")
+		MessageHeaderKeys: []string{"User-Agent"},
+	})
+
+	app.Use(customLogger)
 
 	app.RegisterView(iris.HTML("./web/views", ".html"))
 
