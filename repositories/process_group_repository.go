@@ -57,6 +57,9 @@ func (r *processGroupRepository) UngroupProcessGroup(gid string, parentID string
 	group.Processors = append(group.Processors, current.Processors...)
 	group.Connections = append(group.Connections, current.Connections...)
 
+	if r.source["root"].ID == group.ID {
+		parentID = "root"
+	}
 	r.mu.Lock()
 	r.source[parentID] = group
 	r.mu.Unlock()
@@ -80,6 +83,10 @@ func (r *processGroupRepository) UpdateSnippet(gid string, processors []datamode
 		group.ProcessGroups = updateProcessGroups(group, processGroups)
 	}
 
+	if r.source["root"].ID == group.ID {
+		gid = "root"
+	}
+
 	r.mu.Lock()
 	r.source[gid] = group
 	r.mu.Unlock()
@@ -101,6 +108,10 @@ func (r *processGroupRepository) DeleteSnippet(parentID string, processors []str
 	}
 	if len(processGroups) > 0 {
 		group.ProcessGroups = deleteProcessGroups(group, processGroups)
+	}
+
+	if r.source["root"].ID == group.ID {
+		parentID = "root"
 	}
 
 	r.mu.Lock()
@@ -166,6 +177,10 @@ func (r *processGroupRepository) InsertProcessGroup(parentID string, processors 
 		group.Connections = deleteConnections(group, connIDs)
 	}
 
+	if r.source["root"].ID == group.ID {
+		parentID = "root"
+	}
+
 	r.mu.Lock()
 	r.source[parentID] = group
 	r.source[processGroup.ID] = processGroup
@@ -210,6 +225,10 @@ func (r *processGroupRepository) CloneSnippet(gid string, processors []datamodel
 		group.Connections = append(group.Connections, connection)
 	}
 
+	if r.source["root"].ID == group.ID {
+		gid = "root"
+	}
+
 	r.mu.Lock()
 	r.source[gid] = group
 	r.mu.Unlock()
@@ -230,6 +249,10 @@ func (r *processGroupRepository) InsertConnection(gid string, connection datamod
 	connection.ID = id.String()
 	group.Connections = append(group.Connections, connection)
 
+	if r.source["root"].ID == group.ID {
+		gid = "root"
+	}
+
 	r.mu.Lock()
 	r.source[gid] = group
 	r.mu.Unlock()
@@ -244,6 +267,10 @@ func (r *processGroupRepository) UpdateProcessors(gid string, processors []datam
 	}
 
 	group.Processors = updateProcessors(group, processors)
+
+	if r.source["root"].ID == group.ID {
+		gid = "root"
+	}
 
 	r.mu.Lock()
 	r.source[gid] = group
@@ -266,6 +293,10 @@ func (r *processGroupRepository) InsertProcessor(gid string, processor datamodel
 	processor.ID = id.String()
 	group.Processors = append(group.Processors, processor)
 
+	if r.source["root"].ID == group.ID {
+		gid = "root"
+	}
+
 	r.mu.Lock()
 	r.source[gid] = group
 	r.mu.Unlock()
@@ -278,7 +309,7 @@ func (r *processGroupRepository) Select(id string) (processGroup datamodels.Proc
 	defer r.mu.RUnlock()
 
 	for key, g := range r.source {
-		if key == id {
+		if key == id || g.ID == id {
 			processGroup = g
 			return processGroup, true
 		}
