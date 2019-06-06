@@ -19,17 +19,19 @@ type typeGroupMemoryRepository struct {
 }
 
 const (
-	bashURL = "http://192.168.20.104:8080/nifi-api/flow/processor-types"
+	apiURL = "http://192.168.20.104:8080/nifi-api"
+	bashURL = "http://192.168.20.104:8080/nifi-api/flow"
 )
 
 var (
 	colors     = []string{"#79f299", "#f2797c", "#799ff2", "#f2b779", "#9479f2", "#c3f279", "#f279e6"}
 	processors = []string{"ExecuteScript", "QueryDatabaseTableRecord", "PutDatabaseRecord", "UpdateRecord", "SplitJson", "PublishKafka_2_0", "GenerateFlowFile", "PutDistributedMapCache", "InvokeHTTP"}
 	TypeCache *entitys.ProcessorTypes
+	ClientID string
 )
 
 func (r *typeGroupMemoryRepository) SelectAll() (results []datamodels.TypeGroup) {
-	resp, err := r.client.R().SetResult(&entitys.ProcessorTypes{}).Get(bashURL)
+	resp, err := r.client.R().SetResult(&entitys.ProcessorTypes{}).Get(bashURL + "/processor-types")
 	if err != nil {
 		return []datamodels.TypeGroup{}
 	}
@@ -67,7 +69,20 @@ func (r *typeGroupMemoryRepository) SelectAll() (results []datamodels.TypeGroup)
 }
 
 func (r *typeGroupMemoryRepository) SelectTypeByID(id string) (datamodels.TypeItem, bool) {
-	panic("implement me")
+	for _, it := range TypeCache.ProcessorTypes {
+		ids := strings.Split(it.Id, ".")
+		name := ids[len(ids)-1]
+		if includes(processors, name) {
+			item := datamodels.TypeItem{
+				ID:    it.Id,
+				Name:  name,
+				Icon:  "icons/node-red/db.png",
+				Color: colorByName(name),
+			}
+			return item, true
+		}
+	}
+	return datamodels.TypeItem{}, false
 }
 
 func (r *typeGroupMemoryRepository) SelectProcessorByID(id string) (entitys.ProcessorTypeItem, bool) {

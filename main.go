@@ -1,8 +1,6 @@
 package main
 
 import (
-	"flow-editor-mock/datasource"
-	"flow-editor-mock/repositories"
 	"flow-editor-mock/repositories/nifi"
 	"flow-editor-mock/services"
 	"flow-editor-mock/web/routes"
@@ -53,7 +51,8 @@ func newApp() *iris.Application {
 	typeGroupService := services.NewTypeGroupService(repoTypeGroup)
 	hero.Register(typeGroupService)
 
-	repoProcessGroup := repositories.NewProcessGroupRepository(datasource.ProcessGroups)
+	//repoProcessGroup := repositories.NewProcessGroupRepository(datasource.ProcessGroups)
+	repoProcessGroup := nifi.NewProcessGroupRepository(client)
 	processGroupService := services.NewProcessGroupService(repoProcessGroup, repoTypeGroup)
 	hero.Register(processGroupService)
 

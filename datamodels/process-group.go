@@ -1,5 +1,7 @@
 package datamodels
 
+import "flow-editor-mock/entitys"
+
 type ProcessGroup struct {
 	ID            string         `json:"id"`
 	Processors    []Processor    `json:"processors"`
@@ -13,6 +15,12 @@ type ProcessGroup struct {
 	Rect    Rect   `json:"rect"`
 	Icon    string `json:"icon"`
 	Style   Style  `json:"style"`
+
+	Count int `json:"count"`
+
+	Link struct {
+		Flow entitys.ProcessGroupFlow `json:"flow"`
+	} `json:"_link"`
 }
 
 type DelContent struct {
